@@ -65,8 +65,6 @@ fragility within and across environments.
 
 ## Analytical Workflow
 
- ## Analytical Workflow
-
 | Analytical Stage | Data Inputs | Ecological Outputs |
 |------------------|------------|--------------------|
 | Genome Processing | ARG annotations (CARD), VF annotations (VFDB), MAG taxonomy | Harmonized mechanism-level functional table |
