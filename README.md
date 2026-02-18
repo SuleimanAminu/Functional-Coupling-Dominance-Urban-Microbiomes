@@ -65,31 +65,16 @@ fragility within and across environments.
 
 ## Analytical Workflow
 
-  ------------------------------------------------------------------------
-   Analysis      Data Inputs                          Ecological Outputs
-  -------------- ---------------------------- ----------------------------
-  Genome         ARG annotations (CARD), VF   Harmonized mechanism-level
-  Processing     annotations (VFDB), MAG      functional table
-                 taxonomy                     
+ ## Analytical Workflow
 
-  Batch          Mechanism TPM matrix         CLR matrix, batch-corrected
-  Correction &                                matrix
-  CLR                                         
-
-  Ecological     CLR matrix + metadata        Diversity metrics, PERMANOVA
-  Modeling                                    results, differential
-                                              mechanisms
-
-  Functional     Mechanism abundances         ARG entropy, VF entropy,
-  Integration                                 FCR, Integration Index
-
-  Machine        CLR features + integration   Classification performance,
-  Learning       metrics                      feature importance rankings
-
-  Synthetic      Environment-level functional Override thresholds,
-  Perturbation   centroids                    dominance matrix, resilience
-                                              gradients
-  ------------------------------------------------------------------------
+| Analytical Stage | Data Inputs | Ecological Outputs |
+|------------------|------------|--------------------|
+| Genome Processing | ARG annotations (CARD), VF annotations (VFDB), MAG taxonomy | Harmonized mechanism-level functional table |
+| Batch Correction & CLR | Mechanism TPM matrix | CLR matrix, batch-corrected matrix |
+| Ecological Modeling | CLR matrix + metadata | Diversity metrics, PERMANOVA results, differential mechanisms |
+| Functional Integration | Mechanism abundances | ARG entropy, VF entropy, FCR, Integration Index |
+| Machine Learning | CLR features + integration metrics | Classification performance, feature importance rankings |
+| Synthetic Perturbation | Environment-level functional centroids | Override thresholds, dominance matrix, resilience gradients |
 
 ------------------------------------------------------------------------
 
