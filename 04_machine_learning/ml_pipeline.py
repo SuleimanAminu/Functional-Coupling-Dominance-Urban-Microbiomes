@@ -600,6 +600,338 @@ print(classification_report(y_holdout, y_holdout_pred))
 print("\n RandomForest nested CV + holdout evaluation COMPLETE.")
 
 # ============================================================
+# TAXONOMY vs FUNCTION vs COMBINED ML
+# Robustness analysis
+# ============================================================
+
+import pandas as pd
+import numpy as np
+
+from sklearn.model_selection import (
+    train_test_split,
+    RepeatedStratifiedKFold,
+    cross_validate
+)
+
+from sklearn.ensemble import RandomForestClassifier
+
+import matplotlib.pyplot as plt
+
+# ------------------------------------------------------------
+# 1. LOAD SPECIES-LEVEL DATA
+# ------------------------------------------------------------
+
+species = pd.read_csv(
+    "TPM_clr_batch_corrected_v1.csv",
+    index_col=0
+)
+
+# transpose → samples × species
+species = species.T
+
+# ------------------------------------------------------------
+# 2. LOAD FUNCTIONAL FEATURES
+# ------------------------------------------------------------
+
+mech = pd.read_csv(
+    "Mechanism_CLR_batch_corrected_v1.tsv",
+    index_col=0
+)
+
+fid = pd.read_csv(
+    "Functional_Integration_Diversity_Table_v4.csv"
+)
+
+# ------------------------------------------------------------
+# 3. CLEAN SAMPLE IDS
+# ------------------------------------------------------------
+
+fid["Sample_ID"] = (
+    fid["Sample_ID"]
+    .astype(str)
+    .str.strip()
+)
+
+species.index = (
+    species.index
+    .astype(str)
+    .str.strip()
+)
+
+mech.index = (
+    mech.index
+    .astype(str)
+    .str.strip()
+)
+
+# ------------------------------------------------------------
+# 4. ALIGN COMMON SAMPLES
+# ------------------------------------------------------------
+
+common_ids = (
+    species.index
+    .intersection(mech.index)
+    .intersection(fid["Sample_ID"])
+)
+
+print("Common samples:", len(common_ids))
+
+species = species.loc[common_ids].sort_index()
+
+mech = mech.loc[common_ids].sort_index()
+
+fid = (
+    fid.set_index("Sample_ID")
+    .loc[common_ids]
+    .sort_index()
+)
+
+# ------------------------------------------------------------
+# 5. FUNCTIONAL FEATURE MATRIX
+# ------------------------------------------------------------
+
+fid_features = [
+    "H_ARG",
+    "H_VF",
+    "H_TOT",
+    "J_ARG",
+    "J_VF",
+    "FCR",
+    "Integration_Index"
+]
+
+X_function = pd.concat(
+    [
+        mech,
+        fid[fid_features]
+    ],
+    axis=1
+)
+
+# ------------------------------------------------------------
+# 6. SPECIES FEATURE MATRIX
+# ------------------------------------------------------------
+
+X_species = species.copy()
+
+# ------------------------------------------------------------
+# 7. COMBINED FEATURE MATRIX
+# ------------------------------------------------------------
+
+X_combined = pd.concat(
+    [
+        X_species,
+        X_function
+    ],
+    axis=1
+)
+
+# ------------------------------------------------------------
+# 8. LABELS
+# ------------------------------------------------------------
+
+y = fid["Group"]
+
+# ------------------------------------------------------------
+# 9. TRAIN/HOLDOUT SPLIT
+# ------------------------------------------------------------
+
+Xsp_train, Xsp_hold, y_train, y_hold = train_test_split(
+    X_species,
+    y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+
+Xfn_train, Xfn_hold, _, _ = train_test_split(
+    X_function,
+    y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+
+Xcb_train, Xcb_hold, _, _ = train_test_split(
+    X_combined,
+    y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+
+# ------------------------------------------------------------
+# 10. RANDOM FOREST MODEL
+# ------------------------------------------------------------
+
+rf = RandomForestClassifier(
+    n_estimators=500,
+    max_features="sqrt",
+    class_weight="balanced",
+    random_state=42,
+    n_jobs=-1
+)
+
+# ------------------------------------------------------------
+# 11. CROSS-VALIDATION
+# ------------------------------------------------------------
+
+cv = RepeatedStratifiedKFold(
+    n_splits=5,
+    n_repeats=3,
+    random_state=42
+)
+
+scoring = {
+    "balanced_accuracy": "balanced_accuracy",
+    "macro_f1": "f1_macro",
+    "mcc": "matthews_corrcoef"
+}
+
+# ------------------------------------------------------------
+# 12. RUN COMPARATIVE ANALYSIS
+# ------------------------------------------------------------
+
+feature_sets = {
+    "Species-only": Xsp_train,
+    "Function-only": Xfn_train,
+    "Combined": Xcb_train
+}
+
+results = []
+
+for name, Xmat in feature_sets.items():
+
+    print(f"\nRunning {name} model...")
+
+    cv_results = cross_validate(
+        rf,
+        Xmat,
+        y_train,
+        cv=cv,
+        scoring=scoring,
+        n_jobs=-1
+    )
+
+    results.append({
+        "Feature_Set": name,
+
+        "BalancedAccuracy_mean":
+            np.mean(cv_results["test_balanced_accuracy"]),
+
+        "BalancedAccuracy_sd":
+            np.std(cv_results["test_balanced_accuracy"]),
+
+        "MacroF1_mean":
+            np.mean(cv_results["test_macro_f1"]),
+
+        "MacroF1_sd":
+            np.std(cv_results["test_macro_f1"]),
+
+        "MCC_mean":
+            np.mean(cv_results["test_mcc"]),
+
+        "MCC_sd":
+            np.std(cv_results["test_mcc"])
+    })
+
+# ------------------------------------------------------------
+# 13. SAVE RESULTS TABLE
+# ------------------------------------------------------------
+
+results_df = pd.DataFrame(results)
+
+print(results_df)
+
+results_df.to_csv(
+    "Taxonomy_vs_Function_ML_Comparison.csv",
+    index=False
+)
+
+# ------------------------------------------------------------
+# 14. PUBLICATION-QUALITY MCC FIGURE
+# ------------------------------------------------------------
+
+# Figure colors
+colors = {
+    "Species-only": "#1f78b4",
+    "Function-only": "#ff7f00",
+    "Combined": "#6a3d9a"
+}
+
+# Sort by MCC
+plot_df = results_df.sort_values(
+    "MCC_mean",
+    ascending=True
+)
+
+fig, ax = plt.subplots(figsize=(4.8, 3.6))
+
+y_pos = range(len(plot_df))
+
+# Error bars
+ax.errorbar(
+    plot_df["MCC_mean"],
+    y_pos,
+    xerr=plot_df["MCC_sd"],
+    fmt="none",
+    ecolor="black",
+    elinewidth=1.2,
+    capsize=4,
+    capthick=1.2,
+    zorder=1
+)
+
+# Points
+ax.scatter(
+    plot_df["MCC_mean"],
+    y_pos,
+    s=110,
+    c=[colors[x] for x in plot_df["Feature_Set"]],
+    edgecolor="black",
+    linewidth=0.7,
+    zorder=2
+)
+
+# Labels
+ax.set_yticks(y_pos)
+ax.set_yticklabels(
+    plot_df["Feature_Set"],
+    fontsize=11
+)
+
+ax.set_xlabel(
+    "Matthews Correlation Coefficient (MCC)",
+    fontsize=10,
+    fontweight="bold"
+)
+
+# Clean style
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+ax.spines["left"].set_linewidth(1.4)
+ax.spines["bottom"].set_linewidth(1.4)
+
+ax.tick_params(axis="x", labelsize=10)
+ax.tick_params(axis="y", length=0)
+
+plt.tight_layout()
+
+plt.savefig(
+    "Figure_Taxonomy_vs_Function_MCC.tiff",
+    dpi=600,
+    bbox_inches="tight"
+)
+
+plt.show()
+
+# ------------------------------------------------------------
+# 15. FINAL OUTPUT
+# ------------------------------------------------------------
+
+print("Analysis complete.")
+
+# ============================================================
 # FEATURE IMPORTANCE (CONSENSUS ANALYSIS)
 # RandomForest + Gini + Permutation (HOLDOUT)
 # ============================================================
