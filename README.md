@@ -64,7 +64,7 @@ The framework evaluates how different built environments exhibit distinct but pa
 - stress adaptation
 
 ### 3. Predictive Ecological Organization
-Machine-learning analyses evaluate whether coordinated functional architectures encode reproducible environment-associated ecological structure.\
+Machine-learning analyses evaluate whether coordinated functional architectures encode reproducible environment-associated ecological structure.
 
 Classification analyses incorporate:
 - mechanism-level CLR-transformed features
@@ -90,7 +90,6 @@ The perturbation framework emphasizes:
 - instability landscapes
 - transitional ecological configurations
 - context-dependent perturbation dynamics
-  
 rather than strict deterministic dominance hierarchies.
 ------------------------------------------------------------------------
 
@@ -112,11 +111,11 @@ rather than strict deterministic dominance hierarchies.
 
 ## Repository Structure
 
-    01_genome_processing/
-    02_batch_correction/
-    03_ecology_analysis/
-    04_machine_learning/
-    05_synthetic_ecology/
+    01_genome_processing
+    02_batch_correction
+    03_ecology_analysis
+    04_machine_learning
+    05_synthetic_ecology
 
 Scripts follow the analytical progression described above.
 
@@ -126,21 +125,21 @@ Scripts follow the analytical progression described above.
 
 ### Python ≥ 3.9
 
--   pandas\
--   numpy\
--   scipy\
--   scikit-learn\
--   matplotlib\
+-   pandas
+-   numpy
+-   scipy
+-   scikit-learn
+-   matplotlib
 -   seaborn
 
 ### R ≥ 4.3
 
--   tidyverse\
--   vegan\
--   limma\
--   compositions\
--   ComplexHeatmap\
--   FSA\
+-   tidyverse
+-   vegan
+-   limma
+-   compositions
+-   ComplexHeatmap
+-   FSA
 -   ggpubr
 
 ------------------------------------------------------------------------
@@ -158,7 +157,7 @@ Synthetic perturbation analyses explicitly model intermediate ecological states 
 This repository accompanies the manuscript:
 ### "Coordinated resistance–virulence organization across urban microbiomes reveals context-dependent ecological structuring"
 currently 
-# under peer review at npj Biofilms and Microbiomes.
+### under peer review at npj Biofilms and Microbiomes.
 
 ------------------------------------------------------------------------
 # Citation and Usage
