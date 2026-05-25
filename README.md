@@ -166,10 +166,10 @@ Until the peer-review process is complete, we respectfully request that the repo
 For collaborations, questions, or reuse requests, please contact:
 
 Suleiman Aminu
-suleiman.aminu@um6p.ma
+(suleiman.aminu@um6p.ma)
 or 
 Rachid Daoud
-rachid.daoud@um6p.ma
+(rachid.daoud@um6p.ma)
 ------------------------------------------------------------------------
 ## License
 
