@@ -286,11 +286,11 @@ ax = sns.heatmap(
     fmt="d",
     linewidths=0.6,
     linecolor="black",
-    cbar_kws={"label": "Number of wins"}
+    cbar_kws={"label": "Number of transition events"}
 )
 
-ax.set_xlabel("Overridden environment", fontsize=10, weight="bold")
-ax.set_ylabel("Dominant environment", fontsize=10, weight="bold")
+ax.set_xlabel("Recipient environment", fontsize=10, weight="bold")
+ax.set_ylabel("Transition-associated environment", fontsize=10, weight="bold")
 
 plt.tight_layout()
 plt.savefig("Dominance_Heatmap.tiff", dpi=600, bbox_inches="tight")
@@ -417,131 +417,3 @@ plt.savefig(
     bbox_inches="tight"
 )
 plt.show()
-
-# ============================================================
-# Competitive vs Dominant–Fragile Mechanism Signatures
-# ============================================================
-
-import pandas as pd
-
-# ------------------------------------------------------------
-# 1. LOAD INPUT FILES
-# ------------------------------------------------------------
-
-# Mechanism-level differential abundance (limma)
-da = pd.read_csv("Mechanism_Differential_Abundance_limma.csv")
-
-# ML consensus features (top mechanisms driving classification)
-ml_consensus = pd.read_csv("ML_Feature_Consensus_TOP20.csv")
-
-# Synthetic mixing switch points (mechanism-agnostic but environment-resolving)
-switch = pd.read_csv("Synthetic_Mechanism_Switch_Points.csv")
-
-# ------------------------------------------------------------
-# 2. COMPUTE ENVIRONMENT-LEVEL RESILIENCE & DOMINANCE
-# ------------------------------------------------------------
-
-# Mean alpha at which an environment is overridden
-# High alpha = resistant (late switch)
-# Low alpha  = fragile (early switch)
-
-env_stats = (
-    switch.groupby("Recipient")["Alpha_donor"]
-    .mean()
-    .rename("Mean_Override_Alpha")
-    .reset_index()
-)
-
-# Use median split (robust, no tuning)
-alpha_median = env_stats["Mean_Override_Alpha"].median()
-
-env_stats["Resistant_env"] = env_stats["Mean_Override_Alpha"] >= alpha_median
-env_stats["Dominant_env"]  = env_stats["Mean_Override_Alpha"] <  alpha_median
-
-# ------------------------------------------------------------
-# 3. MECHANISM ENRICHMENT PER ENVIRONMENT (STATISTICAL ANCHOR)
-# ------------------------------------------------------------
-
-da_sig = da[da["adj.P.Val"] < 0.05].copy()
-
-da_sig["Enriched_env"] = da_sig.apply(
-    lambda r: r["Contrast"].split("_vs_")[0]
-    if r["logFC"] > 0 else r["Contrast"].split("_vs_")[1],
-    axis=1
-)
-
-da_sig = da_sig[["Mechanism", "Enriched_env"]].drop_duplicates()
-
-# ------------------------------------------------------------
-# 4. RESTRICT TO ML-CONSENSUS MECHANISMS
-# ------------------------------------------------------------
-
-ml_mechs = ml_consensus[["Feature"]].rename(columns={"Feature": "Mechanism"})
-
-sig = da_sig.merge(
-    ml_mechs,
-    on="Mechanism",
-    how="inner"
-)
-
-# ------------------------------------------------------------
-# 5. MERGE WITH ENVIRONMENT DYNAMICS
-# ------------------------------------------------------------
-
-sig = sig.merge(
-    env_stats,
-    left_on="Enriched_env",
-    right_on="Recipient",
-    how="left"
-)
-
-# Explicitly handle missing merges (safe default)
-sig["Resistant_env"] = sig["Resistant_env"].fillna(False)
-sig["Dominant_env"]  = sig["Dominant_env"].fillna(False)
-
-# ------------------------------------------------------------
-# 6. CLASSIFY MECHANISM SIGNATURE TYPE
-# ------------------------------------------------------------
-
-def classify_signature(row):
-    if row["Resistant_env"] and not row["Dominant_env"]:
-        return "Competitive_resistant"
-    if row["Dominant_env"] and not row["Resistant_env"]:
-        return "Dominant_fragile"
-    return "Intermediate"
-
-sig["Signature_type"] = sig.apply(classify_signature, axis=1)
-
-# ------------------------------------------------------------
-# 7. FINAL CLEAN TABLE
-# ------------------------------------------------------------
-
-final_table = (
-    sig[[
-        "Mechanism",
-        "Enriched_env",
-        "Mean_Override_Alpha",
-        "Signature_type"
-    ]]
-    .sort_values(
-        ["Signature_type", "Mean_Override_Alpha"],
-        ascending=[True, False]
-    )
-    .reset_index(drop=True)
-)
-
-# ------------------------------------------------------------
-# 8. SAVE OUTPUT
-# ------------------------------------------------------------
-
-final_table.to_csv(
-    "Mechanism_Competitive_Dominant_Signatures.csv",
-    index=False
-)
-
-print("Mechanism competitive vs dominant–fragile signatures identified.")
-print("\nSignature counts:")
-print(final_table["Signature_type"].value_counts())
-
-print("\nPreview:")
-print(final_table.head(10))
