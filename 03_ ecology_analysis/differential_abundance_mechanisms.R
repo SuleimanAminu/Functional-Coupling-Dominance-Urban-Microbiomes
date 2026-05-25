@@ -146,9 +146,6 @@ write.csv(
 ##########################################################################################
 ####### Environment_specific Functions
 ###################################################################################
-
-
-
 library(ComplexHeatmap)
 library(circlize)
 library(tidyverse)
@@ -229,7 +226,7 @@ ht <- Heatmap(
   name = "Mean |logFC|",
   col = col_fun,
   
-  cluster_rows = FALSE,
+  cluster_rows = TRUE,
   cluster_columns = FALSE,
   row_split = row_split,
   
