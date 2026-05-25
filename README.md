@@ -37,13 +37,13 @@ TThe analytical framework integrates genome-resolved metagenomics, ecological th
 
 ### 1. Coordinated Resistance–Virulence Organization
 Resistance and virulence functions are interpreted as coordinated ecological components embedded within shared genomic and microbial community contexts.
-Resistance and virulence functions.\
+Resistance and virulence functions.
 To quantify functional organization, the framework computes:
 
--   Shannon entropy of ARG mechanisms\
--   Shannon entropy of VF mechanisms\
--   Total functional entropy\
--   Functional Coupling Ratio (FCR)\
+-   Shannon entropy of ARG mechanisms
+-   Shannon entropy of VF mechanisms
+-   Total functional entropy
+-   Functional Coupling Ratio (FCR)
 -   Integration Index
 
 These metrics characterize the relative balance and organization of resistance-associated and virulence-associated ecological processes within environments.
@@ -51,7 +51,7 @@ Importantly, the framework interprets "integration" in an ecological and statist
 
 ### 2. Environment-Associated Ecological Organization
 
-Functional mechanisms are abstracted into higher-order ecological tendencies including:\
+Functional mechanisms are abstracted into higher-order ecological tendencies including:
 - persistence-associated tendencies
 - interaction-associated tendencies
 - context-dependent / multifunctional tendencies
@@ -78,7 +78,7 @@ The framework compares:
 to evaluate the contribution of shared taxonomic and functional organization.
 
 ### 4. Synthetic Perturbation and Transition-State Ecology
-Synthetic donor–recipient mixing experiments are used to evaluate perturbation behavior of coordinated resistance–virulence architectures.\
+Synthetic donor–recipient mixing experiments are used to evaluate perturbation behavior of coordinated resistance–virulence architectures.
 Environment-level functional centroids are interpolated across donor fractions (α) to generate synthetic ecological states.
 For each perturbation trajectory:
 - prediction confidence is evaluated
@@ -146,17 +146,17 @@ Scripts follow the analytical progression described above.
 ------------------------------------------------------------------------
 
 ## Reproducibility
-All analyses use fixed random seeds.\
-Batch correction preserves environment-associated ecological signal.\
-Nested cross-validation prevents information leakage.\
-Supplementary robustness analyses evaluate taxonomic contribution to predictive performance.\
+All analyses use fixed random seeds.
+Batch correction preserves environment-associated ecological signal.
+Nested cross-validation prevents information leakage.
+Supplementary robustness analyses evaluate taxonomic contribution to predictive performance.
 Synthetic perturbation analyses explicitly model intermediate ecological states and non-linear transition dynamics.
 
 ------------------------------------------------------------------------
 
 ## Manuscript Status
 This repository accompanies the manuscript:
-# "Coordinated resistance–virulence organization across urban microbiomes reveals context-dependent ecological structuring"
+### "Coordinated resistance–virulence organization across urban microbiomes reveals context-dependent ecological structuring"
 currently 
 # under peer review at npj Biofilms and Microbiomes.
 
