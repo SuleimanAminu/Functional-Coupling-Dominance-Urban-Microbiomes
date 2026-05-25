@@ -87,7 +87,7 @@ FID <- FID %>% left_join(meta, by = "Sample_ID")
 write.csv(FID, "Functional_Integration_Diversity.csv", row.names = FALSE)
 
 # -------------------------------------------------------------------------
-# 6. NATURE-STYLE VISUALIZATION — INTEGRATION SPACE
+# 6.  VISUALIZATION — INTEGRATION SPACE
 # -------------------------------------------------------------------------
 group_colors <- c(
   "Ambulance"     = "#1f78b4",
@@ -171,6 +171,19 @@ ggsave(
   bg     = "white"
 )
 
+# -------------------------------------------------------------------------
+# FORCE ENVIRONMENT ORDER
+# -------------------------------------------------------------------------
+
+FID$Group <- factor(
+  FID$Group,
+  levels = c(
+    "Hosp_sewage",
+    "Public_transp",
+    "Hosp_env",
+    "Ambulance"
+  )
+)
 
 
 # -------------------------------------------------------------------------
