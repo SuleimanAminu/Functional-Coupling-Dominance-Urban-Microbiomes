@@ -165,9 +165,7 @@ If you use this repository, analytical framework, or associated workflows, pleas
 Until the peer-review process is complete, we respectfully request that the repository not be redistributed, repackaged, or used in derivative publications without prior communication with the authors.
 For collaborations, questions, or reuse requests, please contact:
 
-### Suleiman Aminu(suleiman.aminu@um6p.ma)
-or 
-### Rachid Daoud (rachid.daoud@um6p.ma)
+### Suleiman Aminu(suleiman.aminu@um6p.ma) or Rachid Daoud (rachid.daoud@um6p.ma)
 
 ------------------------------------------------------------------------
 ## License
