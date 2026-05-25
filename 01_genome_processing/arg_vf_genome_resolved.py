@@ -132,6 +132,133 @@ print(f"Dual-positive genomes: {len(shared_genomes)}")
 print(f"Unified dataset: {len(combined)} rows")
 print(f"Columns in unified dataset: {list(combined.columns)}")
 
+
+# ==========================================================
+# REPRESENTATIVENESS OF DUAL-POSITIVE MAGs 
+# ==========================================================
+
+# Total unique genomes
+total_arg_genomes = arg['Genome'].nunique()
+total_vf_genomes = vf['Genome'].nunique()
+
+# Union of all genomes
+all_genomes = set(arg['Genome']).union(set(vf['Genome']))
+total_unique_genomes = len(all_genomes)
+
+# Dual-positive genomes
+dual_positive_genomes = len(shared_genomes)
+
+# Percent retained
+percent_dual = (
+    dual_positive_genomes / total_unique_genomes
+) * 100
+
+print("\n===== REPRESENTATIVENESS =====")
+print(f"Total unique genomes: {total_unique_genomes}")
+print(f"Dual-positive genomes: {dual_positive_genomes}")
+print(f"Percent dual-positive: {percent_dual:.2f}%")
+
+# ----------------------------------------------------------
+# Average ARGs per MAG
+# ----------------------------------------------------------
+
+arg_per_mag = (
+    arg_dual.groupby("Genome")["Gene_name"]
+    .nunique()
+)
+
+print(
+    f"Average ARGs per MAG: "
+    f"{arg_per_mag.mean():.2f}"
+)
+
+# ----------------------------------------------------------
+# Average VFs per MAG
+# ----------------------------------------------------------
+
+vf_per_mag = (
+    vf_dual.groupby("Genome")["Gene_name"]
+    .nunique()
+)
+
+print(
+    f"Average VFs per MAG: "
+    f"{vf_per_mag.mean():.2f}"
+)
+
+# ----------------------------------------------------------
+# MAG prevalence across samples
+# ----------------------------------------------------------
+
+mag_prevalence = (
+    combined.groupby("Genome")["Sample_ID"]
+    .nunique()
+)
+
+print("\nMAG prevalence statistics:")
+print(mag_prevalence.describe())
+
+# ----------------------------------------------------------
+# Read contribution of dual-positive MAGs
+# ----------------------------------------------------------
+
+total_reads_all = (
+    arg["Read_Count"].sum()
+    + vf["Read_Count"].sum()
+)
+
+total_reads_dual = (
+    arg_dual["Read_Count"].sum()
+    + vf_dual["Read_Count"].sum()
+)
+
+percent_reads_dual = (
+    total_reads_dual / total_reads_all
+) * 100
+
+print(
+    f"\nPercent reads mapping to "
+    f"dual-positive MAGs: "
+    f"{percent_reads_dual:.2f}%"
+)
+
+# ----------------------------------------------------------
+# SAVE SUMMARY TABLE
+# ----------------------------------------------------------
+
+summary_stats = pd.DataFrame({
+    "Metric": [
+        "Total unique genomes",
+        "Dual-positive genomes",
+        "Percent dual-positive genomes",
+        "Average ARGs per MAG",
+        "Average VFs per MAG",
+        "Median MAG prevalence",
+        "Mean MAG prevalence",
+        "Percent reads mapping to dual-positive MAGs"
+    ],
+    "Value": [
+        total_unique_genomes,
+        dual_positive_genomes,
+        round(percent_dual, 2),
+        round(arg_per_mag.mean(), 2),
+        round(vf_per_mag.mean(), 2),
+        round(mag_prevalence.median(), 2),
+        round(mag_prevalence.mean(), 2),
+        round(percent_reads_dual, 2)
+    ]
+})
+
+summary_stats.to_csv(
+    "Dual_Positive_MAG_Representativeness.tsv",
+    sep="\t",
+    index=False
+)
+
+print("\nSaved:")
+print("Dual_Positive_MAG_Representativeness.tsv")
+
+# ==========================================================
 import pandas as pd
 import re
 
